@@ -1,0 +1,171 @@
+version: '3'
+services:
+
+        # Ouroboros: Automatically update your running Docker containers to the latest available image
+        # https://github.com/pyouroboros/ouroboros
+        ouroboros:
+              container_name: ouroboros
+              hostname: ouroboros
+              image: pyouroboros/ouroboros
+              environment:
+                      - CLEANUP=true
+                      - INTERVAL=300
+                      - LOG_LEVEL=info
+                      - SELF_UPDATE=true
+                      - IGNORE=mongo influxdb postgres mariadb
+                      - TZ=${TZ} 
+              restart: unless-stopped
+              volumes:
+                      - /var/run/docker.sock:/var/run/docker.sock
+
+        # Arch Linux container running Deluge, Wireguard and Privoxy 
+        # https://github.com/binhex/arch-delugevpn
+        delugevpn:
+                container_name: delugevpn
+                image: binhex/arch-delugevpn:latest
+                restart: unless-stopped
+                cap_add:
+                        - net_admin
+                ports:
+                        - 0.0.0.0:8112:8112
+                        - 58846:58846
+                        - 0.0.0.0:8118:8118
+                privileged: true
+                sysctls:
+                        - "net.ipv4.conf.all.src_valid_mark=1"
+                environment:
+                        - VPN_ENABLED=yes
+                        - VPN_PROV=custom
+                        - VPN_CLIENT=wireguard                      
+                        - ENABLE_PRIVOXY=yes
+                        - LAN_NETWORK=${LAN_NETWORK}
+                        - NAME_SERVERS=1.1.1.1,1.0.0.1
+                        - DELUGE_DAEMON_LOG_LEVEL=info
+                        - DELUGE_WEB_LOG_LEVEL=info
+                        - DEBUG=false
+                        - UMASK=000
+                        - PUID=${UID}
+                        - PGID=${GID}
+                        - TZ=${TZ} 
+                volumes:
+                        - ${DATA}/deluge/data:/data
+                        - ${DATA}/deluge/config:/config
+                        - ${MERGERFS}/Downloads:/home/nobody/Downloads
+                        - /etc/localtime:/etc/localtime:ro
+
+        # Jellyfin: The Free Software media server
+        # https://github.com/linuxserver/docker-jellyfin
+        jellyfin:
+                container_name: jellyfin
+                image: linuxserver/jellyfin:latest
+                restart: unless-stopped
+                privileged: true
+                environment:
+                        - PUID=${UID}
+                        - PGID=${GID}
+                        - TZ=${TZ} 
+                        - UMASK_SET=022
+                ports:
+                        - 0.0.0.0:8096:8096
+                volumes:
+                        - ${DATA}/jellyfin:/config
+                        - ${MERGERFS}/Media:/data/
+                devices:
+                        - /dev/dri:/dev/dri
+
+        # Sonarr: TV show tracker and downlaoder
+        # https://hub.docker.com/r/linuxserver/sonarr
+        sonarr:
+                container_name: sonarr
+                image: linuxserver/sonarr:latest
+                restart: unless-stopped
+                network_mode: host
+                ports:
+                        - 0.0.0.0:8989:8989
+                environment:
+                        - PUID=${UID}
+                        - PGID=${GID}
+                        - TZ=${TZ} 
+                volumes:
+                        - /etc/localtime:/etc/localtime:ro
+                        - ${DATA}/sonarr:/config # config files
+                        - ${MERGERFS}/Media/TV:/tv # tv shows folder
+                        - ${MERGERFS}/Downloads:/downloads
+
+        # Radarr: TV show tracker and downlaoder
+        # https://hub.docker.com/r/linuxserver/radarr
+        radarr:
+                container_name: radarr
+                image: linuxserver/radarr:latest
+                restart: unless-stopped
+                network_mode: host
+                ports:
+                        - 0.0.0.0:7878:7878
+                environment:
+                        - PUID=${UID}
+                        - PGID=${GID}
+                        - TZ=${TZ} 
+                volumes:
+                        - /etc/localtime:/etc/localtime:ro
+                        - ${DATA}/radarr:/config # config files
+                        - ${MERGERFS}/Media/Movies:/movies # movies folder
+                        - ${MERGERFS}/Downloads:/downloads
+
+        # Jackett: Torrent indexer for Sonarr and Radarr
+        # https://hub.docker.com/r/linuxserver/jackett
+        jackett:
+                container_name: jackett
+                image: linuxserver/jackett:latest
+                restart: unless-stopped
+                network_mode: host
+                ports:
+                        - 0.0.0.0:9117:9117
+                environment:
+                        - PUID=${UID}
+                        - PGID=${GID}
+                        - TZ=${TZ} 
+                volumes:
+                        - /etc/localtime:/etc/localtime:ro
+                        - ${DATA}/jackett:/config # config files
+
+        # Homer: A fancy homepage for self-hosted services
+        # https://hub.docker.com/r/b4bz/homer
+        homer:
+                container_name: homer
+                image: b4bz/homer
+                restart: unless-stopped
+                network_mode: host
+                ports:
+                        - 0.0.0.0:8080:8080
+                environment:
+                        - PUID=${UID}
+                        - PGID=${GID}
+                        - TZ=${TZ} 
+                volumes:
+                        - ${DATA}/homer:/www/assets
+        
+        # Wireguard VPN server
+        # https://hub.docker.com/r/linuxserver/wireguard
+        wireguard:
+                image: ghcr.io/linuxserver/wireguard
+                container_name: wireguard
+                cap_add:
+                        - NET_ADMIN
+                        - SYS_MODULE
+                environment:
+                        - PUID=${UID}
+                        - PGID=${GID}
+                        - TZ=${TZ} 
+                        - SERVERURL=${WG_HOST}
+                        - SERVERPORT=51820 #optional
+                        - PEERS=${WG_PEERS}
+                        - PEERDNS=auto #optional
+                volumes:
+                        - ${DATA}/wgserver/config:/config
+                        - /lib/modules:/lib/modules
+                ports:
+                        - 51820:51820/udp
+                sysctls:
+                        - net.ipv4.conf.all.src_valid_mark=1
+                restart: 
+                        unless-stopped
