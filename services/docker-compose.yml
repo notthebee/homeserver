@@ -39,10 +39,10 @@ services:
                         - VPN_CLIENT=wireguard                      
                         - ENABLE_PRIVOXY=yes
                         - LAN_NETWORK=${LAN_NETWORK}
-                        - NAME_SERVERS=1.1.1.1,1.0.0.1
+                        - NAME_SERVERS=1.1.1.1, 1.0.0.1
                         - DELUGE_DAEMON_LOG_LEVEL=info
                         - DELUGE_WEB_LOG_LEVEL=info
-                        - DEBUG=false
+                        - DEBUG=true
                         - UMASK=000
                         - PUID=${UID}
                         - PGID=${GID}
@@ -53,23 +53,22 @@ services:
                         - ${MERGERFS}/Downloads:/home/nobody/Downloads
                         - /etc/localtime:/etc/localtime:ro
 
-        # Jellyfin: The Free Software media server
-        # https://github.com/linuxserver/docker-jellyfin
-        jellyfin:
-                container_name: jellyfin
-                image: linuxserver/jellyfin:latest
-                restart: unless-stopped
-                privileged: true
+        # Plex – a self-hosted media server
+        # https://docs.linuxserver.io/images/docker-plex
+        plex:
+                image: ghcr.io/linuxserver/plex
+                container_name: plex
+                network_mode: host
                 environment:
                         - PUID=${UID}
                         - PGID=${GID}
-                        - TZ=${TZ} 
-                        - UMASK_SET=022
-                ports:
-                        - 0.0.0.0:8096:8096
+                        - TZ=${TZ}
+                        - VERSION=docker
                 volumes:
-                        - ${DATA}/jellyfin:/config
-                        - ${MERGERFS}/Media:/data/
+                        - ${DATA}/plex/config:/config
+                        - ${MERGERFS}/Media/TV:/tv
+                        - ${MERGERFS}/Media/Movies:/movies
+                restart: unless-stopped
                 devices:
                         - /dev/dri:/dev/dri
 
