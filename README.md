@@ -6,7 +6,7 @@
 * [Jellyfin](https://hub.docker.com/r/linuxserver/jellyfin), a media server 
 * [Sonarr](https://hub.docker.com/r/linuxserver/sonarr), a TV show tracker and downloader
 * [Raddar](https://hub.docker.com/r/linuxserver/radarr), ditto for movies
-* [Jackett](https://hub.docker.com/r/linuxserver/jacket), a torrent indexer for Sonarr and Radarr
+* [Jackett](https://hub.docker.com/r/linuxserver/jackett), a torrent indexer for Sonarr and Radarr
 * [Wireguard](https://hub.docker.com/r/linuxserver/wireguard), a Wireguard VPN server
 * [Homer](https://hub.docker.com/r/b4bz/homer), a fancy homepage
 
