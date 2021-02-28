@@ -1,3 +1,5 @@
+The docker-compose configuration I use on my home server/NAS
+
 ![Screenshot](https://user-images.githubusercontent.com/30384331/109420501-cb886380-79ca-11eb-8858-dc73771b6ce3.png)
 
 ## Services
@@ -15,3 +17,32 @@
 #### Smart home stuff:
 * [Home Assistant](https://hub.docker.com/r/homeassistant/home-assistant), an open source home automation platform
 * [deCONZ](https://github.com/marthoc/docker-deconz), an interface for Conbee (Zigbee gateway)
+
+
+## Usage
+Create a folder for your configuration files:
+
+```
+mkdir -p /opt/docker/compose
+```
+
+Clone this repository:
+
+```
+cd /opt/docker/compose
+git clone https://github.com/notthebee/homeserver
+```
+
+Rename and edit the .env_template file
+```
+mv services/.env_template services/.env
+cd smarthome
+ln -s ../services/.env .env
+vim services/.env
+```
+
+Start the containers
+```
+cd services && docker-compose up -d
+cd smarthome && docker-compose up -d
+```
