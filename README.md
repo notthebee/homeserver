@@ -1,4 +1,8 @@
-The docker-compose configuration I use on my home server/NAS
+# notthebee/homeserver
+
+The docker-compose configuration I used to use for my home server/NAS.
+
+I've since switched to Ansible for my infrastracture management: [https://github.com/notthebee/infra](https://github.com/notthebee/infra)
 
 ![Screenshot](https://user-images.githubusercontent.com/30384331/109420501-cb886380-79ca-11eb-8858-dc73771b6ce3.png)
 
